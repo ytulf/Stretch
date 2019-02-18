@@ -1,0 +1,12 @@
+tsavio; thomas SAVIO; thomas; SAVIO; 5001
+maxguer; maxime GUERIN; maxime; GUERIN; 5002
+tflauss; tanguy FLAUSS; tanguy; FLAUSS; 5003
+cgalle; clement GALLE; clement; GALLE; 5004
+vguillaud; valentin GUILLAUD; valentin; GUILLAUD; 5005
+mbricard; matthias BRICARD; matthias; BRICARD; 5006
+dleverrier; dylan LEVERRIER; dylan; LEVERRIER; 5007
+ypaggin; yann PAGGIN; yann; PAGGIN; 5008
+jbattut; jerome BATTUT; jerome; BATTUT; 5009
+tloubry; thomas LOUBRY; thomas; LOUBRY; 5010
+aletort; alexis LETORT; alexis; LETORT; 5011
+mniepceron; maxime NIEPCERON; maxime; NIEPERCON; 5012

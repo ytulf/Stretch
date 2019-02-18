@@ -1,0 +1,108 @@
+### QoS is disabled by default on the Catalyst 3750 Switches.
+Switch#show mls qos
+QoS is disabled
+QoS ip packet dscp rewrite is enabled
+
+### Mettre QoS sur interface
+interface GigabitEthernet1/0/2
+ description **** Access Port ****
+ switchport access vlan 10
+ switchport mode access
+ mls qos trust dscp
+ 
+ 
+ 
+ ### Mettre QoS pour lien trunk et Téléphone 
+ interface GigabitEthernet1/0/3
+description **** Trunk Port ****
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 5
+switchport trunk allowed vlan 5,10,20,30,40,50
+mls qos trust cos
+end
+interface GigabitEthernet1/0/12
+ description **** Cisco IP Phone  ****
+ switchport access vlan 10
+ switchport mode access
+ switchport voice vlan 20
+ mls qos trust cos
+ spanning-tree portfast
+end
+
+!--- The Cisco IP Phone uses IEEE 802.1Q frames for Voice !--- VLAN traffic.
+
+
+### Mettre un coût à la QoS
+interface GigabitEthernet1/0/12
+ description **** Cisco IP Phone  ****
+ switchport access vlan 10
+ switchport mode access
+ switchport voice vlan 20
+ mls qos trust cos
+ mls qos cos 3
+ spanning-tree portfast
+end
+
+# Ou en override :
+interface GigabitEthernet1/0/12
+ description **** Cisco IP Phone  ****
+ switchport access vlan 10
+ switchport mode access
+ switchport voice vlan 20
+ mls qos trust cos
+ mls qos cos 3 override
+
+!--- Overrides the mls qos trust cos.
+
+
+!--- Applies CoS value 3 on all the incoming packets on both !--- the vlan 10 and 20.
+
+ spanning-tree portfast
+end
+
+### Route-map
+!--- Section A
+
+Distribution1(config)#ip access-list extended voice-traffic
+Distribution1(config-std-nacl)#permit ip 192.168.100.0 0.0.0.255 any
+
+Distribution1(config-std-nacl)#ip access-list extended
+ database-application
+Distribution1(config-ext-nacl)#permit tcp any any eq 1521
+Distribution1(config-ext-nacl)#permit tcp any any eq 1810
+Distribution1(config-ext-nacl)#permit tcp any any eq 2481
+Distribution1(config-ext-nacl)#permit tcp any any eq 7778
+Distribution1(config-ext-nacl)#exit
+
+Distribution1(config)#class-map  Class-A
+Distribution1(config-cmap)#match access-group name voice-traffic
+Distribution1(config-cmap)#exit
+Distribution1(config)#class-map  Class-B
+Distribution1(config-cmap)#match access-group name
+ database-application
+Distribution1(config-cmap)#exit
+
+
+!--- Section B
+
+Distribution1(config)#policy-map sample-policy1
+Distribution1(config-pmap)#class Class-A
+Distribution1(config-pmap-c)#trust cos
+Distribution1(config-pmap-c)#exit
+Distribution1(config-pmap)#class Class-B
+Distribution1(config-pmap-c)#set dscp af21
+Distribution1(config-pmap-c)#exit
+Distribution1(config-pmap)#exit
+
+
+!--- Section C
+
+Distribution1(config)#interface gigabitEthernet 1/0/13
+Distribution1(config-if)#switchport access vlan 10
+Distribution1(config-if)#switchport mode access
+Distribution1(config-if)#switchport voice vlan 100
+Distribution1(config-if)#spanning-tree portfast
+Distribution1(config-if)#service-policy input sample-policy1
+Distribution1(config-if)#exit
+
